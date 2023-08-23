@@ -130,7 +130,7 @@ class SearchAndFilterTodo extends StatelessWidget {
         context.read<TodoFilter>().changeFilter(filter);
       },
       child: Text(
-        filter == Filter.active
+        filter == Filter.all
             ? 'All'
             : filter == Filter.active
                 ? 'Active'
