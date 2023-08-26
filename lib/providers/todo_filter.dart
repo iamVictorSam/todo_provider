@@ -35,4 +35,10 @@ class TodoFilterState {
 
 class TodoFilter with ChangeNotifier {
   TodoFilterState _state = TodoFilterState.initial();
+  TodoFilterState get state => _state;
+
+  void changeFilter(Filter newFilter) {
+    _state = _state.copyWith(filter: newFilter);
+    notifyListeners();
+  }
 }
