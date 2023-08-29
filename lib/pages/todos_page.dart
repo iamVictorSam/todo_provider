@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_provider/models/todo_model.dart';
 import 'package:todo_provider/providers/provider.dart';
 
 class TodosPage extends StatefulWidget {
@@ -20,6 +21,7 @@ class _TodosPageState extends State<TodosPage> {
           children: <Widget>[
             TodoHeader(),
             CreateTodo(),
+            SearchAndFilterTodo(),
           ],
         ),
       )),
@@ -36,7 +38,7 @@ class TodoHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Text(
-          'TO DO',
+          'TODO',
           style: TextStyle(fontSize: 40),
         ),
         Text(
@@ -74,6 +76,85 @@ class _CreateTodoState extends State<CreateTodo> {
           context.read<TodoList>().addTodo(todoDesc);
           newTodoController.clear();
         }
+      },
+    );
+  }
+}
+
+class SearchAndFilterTodo extends StatelessWidget {
+  const SearchAndFilterTodo({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TextField(
+          decoration: InputDecoration(
+            labelText: 'Search Todos',
+            border: InputBorder.none,
+            filled: true,
+            prefixIcon: Icon(
+              Icons.search,
+            ),
+          ),
+          onChanged: (String? newSearchTerm) {
+            if (newSearchTerm != null) {
+              context.read<TodoSearch>().setSearchTerm(newSearchTerm);
+            }
+          },
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            filterButton(context, Filter.all),
+            filterButton(context, Filter.active),
+            filterButton(context, Filter.completed),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget filterButton(BuildContext context, Filter filter) {
+    return TextButton(
+      onPressed: () {
+        context.read<TodoFilter>().changeFilter(filter);
+      },
+      child: Text(
+        filter == Filter.active
+            ? 'All'
+            : filter == Filter.active
+                ? 'Active'
+                : 'Completed',
+        style: TextStyle(fontSize: 18, color: textColor(context, filter)),
+      ),
+    );
+  }
+
+  Color textColor(BuildContext context, Filter filter) {
+    final currentFilter = context.watch<TodoFilter>().state.filter;
+    return currentFilter == filter ? Colors.blue : Colors.grey;
+  }
+}
+
+class ShowTodos extends StatelessWidget {
+  const ShowTodos({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final todos = context.watch<FilteredTodos>().state.filteredTodos;
+
+    return ListView.separated(
+      itemCount: todos.length,
+      separatorBuilder: (context, index) => Divider(color: Colors.grey),
+      itemBuilder: (context, index) {
+        return Text(
+          todos[index].desc,
+          style: TextStyle(fontSize: 20),
+        );
       },
     );
   }
