@@ -211,12 +211,70 @@ class TodoItem extends StatefulWidget {
 }
 
 class _TodoItemState extends State<TodoItem> {
+  late final TextEditingController textEditingController;
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
+        onTap: () {
+          showDialog(
+              context: context,
+              builder: (context) {
+                bool _error = false;
+                textEditingController.text = widget.todo.desc;
+                return StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
+                    return AlertDialog(
+                      title: Text('Edit Todo'),
+                      content: TextField(
+                        controller: textEditingController,
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          errorText: _error ? 'Value cannot be empty' : null,
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('CANCEL'),
+                        ),
+                        TextButton(
+                          onPressed: () => setState(() {
+                            _error = textEditingController.text.isEmpty
+                                ? true
+                                : false;
+
+                            if (!_error) {
+                              context.read<TodoList>().editTodo(
+                                  widget.todo.id, textEditingController.text);
+                              Navigator.pop(context);
+                            }
+                          }),
+                          child: Text('EDIT'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              });
+        },
         leading: Checkbox(
           value: widget.todo.completed,
-          onChanged: (bool? checked) {},
+          onChanged: (bool? checked) {
+            context.read<TodoList>().toggleTodo(widget.todo.id);
+          },
         ),
         title: Text(widget.todo.desc));
   }
