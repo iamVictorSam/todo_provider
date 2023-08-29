@@ -158,10 +158,29 @@ class ShowTodos extends StatelessWidget {
           key: ValueKey(todos[index].id),
           background: showBackground(0),
           secondaryBackground: showBackground(1),
-          child: Text(
-            todos[index].desc,
-            style: TextStyle(fontSize: 20),
-          ),
+          onDismissed: (_) {
+            context.read<TodoList>().removeTodo(todos[index]);
+          },
+          confirmDismiss: (_) {
+            return showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) {
+                  return AlertDialog.adaptive(
+                    title: Text('Are you sure?'),
+                    content: Text('Do you really want to delete?'),
+                    actions: [
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('NO')),
+                      TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text('YES')),
+                    ],
+                  );
+                });
+          },
+          child: TodoItem(todo: todos[index]),
         );
       },
     );
@@ -179,5 +198,26 @@ class ShowTodos extends StatelessWidget {
         color: Colors.white,
       ),
     );
+  }
+}
+
+class TodoItem extends StatefulWidget {
+  final Todo todo;
+
+  const TodoItem({super.key, required this.todo});
+
+  @override
+  State<TodoItem> createState() => _TodoItemState();
+}
+
+class _TodoItemState extends State<TodoItem> {
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+        leading: Checkbox(
+          value: widget.todo.completed,
+          onChanged: (bool? checked) {},
+        ),
+        title: Text(widget.todo.desc));
   }
 }
