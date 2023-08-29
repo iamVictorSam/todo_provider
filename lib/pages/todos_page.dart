@@ -22,6 +22,7 @@ class _TodosPageState extends State<TodosPage> {
             TodoHeader(),
             CreateTodo(),
             SearchAndFilterTodo(),
+            ShowTodos()
           ],
         ),
       )),
@@ -148,14 +149,35 @@ class ShowTodos extends StatelessWidget {
     final todos = context.watch<FilteredTodos>().state.filteredTodos;
 
     return ListView.separated(
+      primary: false,
+      shrinkWrap: true,
       itemCount: todos.length,
       separatorBuilder: (context, index) => Divider(color: Colors.grey),
       itemBuilder: (context, index) {
-        return Text(
-          todos[index].desc,
-          style: TextStyle(fontSize: 20),
+        return Dismissible(
+          key: ValueKey(todos[index].id),
+          background: showBackground(0),
+          secondaryBackground: showBackground(1),
+          child: Text(
+            todos[index].desc,
+            style: TextStyle(fontSize: 20),
+          ),
         );
       },
+    );
+  }
+
+  Widget showBackground(int direction) {
+    return Container(
+      margin: const EdgeInsets.all(4),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      color: Colors.red,
+      alignment: direction == 0 ? Alignment.centerLeft : Alignment.centerRight,
+      child: Icon(
+        Icons.delete,
+        size: 30,
+        color: Colors.white,
+      ),
     );
   }
 }
